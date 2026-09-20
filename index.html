@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>V17 COFRE</title>
+<link rel="manifest" href="manifest.json">
+<style>
+body{background:#000;color:#fff;font-family:Arial;margin:0}
+.header{position:sticky;top:0;background:#111;border-bottom:2px solid gold;padding:8px;display:flex;gap:6px;flex-wrap:wrap;align-items:center;z-index:10}
+.btn-gold{background:gold;color:#000;border:0;padding:9px 12px;border-radius:12px;font-weight:bold}
+.btn2{background:#222;color:#fff;border:1px solid #444;padding:8px 10px;border-radius:10px}
+.btn-green{background:#0a7d0a;color:#fff;border:0;padding:8px 10px;border-radius:10px;font-weight:bold}
+.btn-blue{background:#0a4a9a;color:#fff;border:0;padding:8px 10px;border-radius:10px;font-weight:bold}
+.tabs{display:flex;gap:6px;padding:10px;overflow:auto}
+.tab{background:#222;border:1px solid #333;padding:10px 12px;border-radius:20px;white-space:nowrap;color:#fff}
+.tab.active{background:gold;color:#000;font-weight:bold}
+.card{background:#111;border:1px solid #333;border-radius:14px;padding:12px;margin:10px}
+.bank-item{display:flex;align-items:center;gap:10px;background:#151515;border:1px solid #333;border-radius:12px;padding:10px;margin:8px 10px}
+.install-btn{background:#0a7d0a;color:#fff;border:0;padding:8px 12px;border-radius:10px;font-weight:bold}
+.trash{background:#300;color:#fff;border:1px solid #533;padding:8px 10px;border-radius:10px}
+#lockScreen{position:fixed;inset:0;background:#000;display:flex;align-items:center;justify-content:center;z-index:99}
+.pin-dot{width:14px;height:14px;border:2px solid gold;border-radius:50%;display:inline-block;margin:4px}.filled{background:gold}
+</style>
+</head>
+<body>
+
+<div id="lockScreen"><div class="card" style="text-align:center;width:300px">
+<h2 style="color:gold">🔐 V17 COFRE</h2><p id="pinMsg" style="color:#aaa">Digite seu PIN</p>
+<div><span id="d1" class="pin-dot"></span><span id="d2" class="pin-dot"></span><span id="d3" class="pin-dot"></span><span id="d4" class="pin-dot"></span></div>
+<div style="display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:10px">
+<button class="btn2" onclick="addPin('1')">1</button><button class="btn2" onclick="addPin('2')">2</button><button class="btn2" onclick="addPin('3')">3</button>
+<button class="btn2" onclick="addPin('4')">4</button><button class="btn2" onclick="addPin('5')">5</button><button class="btn2" onclick="addPin('6')">6</button>
+<button class="btn2" onclick="addPin('7')">7</button><button class="btn2" onclick="addPin('8')">8</button><button class="btn2" onclick="addPin('9')">9</button>
+<button class="btn2" onclick="clearPin()">⌫</button><button class="btn2" onclick="addPin('0')">0</button><button class="btn-gold" onclick="okPin()">OK</button>
+</div>
+<button id="btnCriar" style="display:none;width:100%;margin-top:8px" class="btn-gold" onclick="criarPin()">💾 CRIAR PIN</button>
+</div></div>
+
+<div id="app" style="display:none">
+<div class="header">
+<b style="color:gold;flex:1">🔐 V17 COFRE DE BANCOS</b>
+<button class="btn2" onclick="bloquear()">🔒 Bloquear</button>
+<button class="btn-blue" onclick="compartilhar()">📤 Compartilhar</button>
+<button class="btn-green" onclick="convidar()">👥 Convidar</button>
+<button id="btnInstalarApp" class="btn-gold" onclick="instalarPWA()">📲 Instalar App</button>
+</div>
+
+<div class="tabs">
+<button id="tabBtn-bancos" class="tab active" onclick="openTab('bancos',this)">🏦 Meus Bancos</button>
+<button class="tab" onclick="openTab('add',this)">➕ Adicionar</button>
+<button class="tab" onclick="openTab('playstore',this)">📲 Play Store</button>
+<button class="tab" onclick="openTab('vip',this)">👑 VIP R$3</button>
+</div>
+
+<div id="tab-bancos"><div class="card"><input id="busca" placeholder="🔍 Buscar banco..." style="width:100%;padding:10px;border-radius:10px;background:#000;border:1px solid #333;color:#fff" oninput="render()"></div><div id="listaBancos"></div></div>
+<div id="tab-add" style="display:none"><div class="card"><h3 style="color:gold">➕ Adicionar Banco</h3><input id="addNome" placeholder="Nome" style="width:100%;padding:10px;margin-top:6px;border-radius:10px;background:#000;border:1px solid #333;color:#fff"><input id="addSite" placeholder="https://site oficial" style="width:100%;padding:10px;margin-top:6px;border-radius:10px;background:#000;border:1px solid #333;color:#fff"><input id="addPlay" placeholder="Link Play Store" style="width:100%;padding:10px;margin-top:6px;border-radius:10px;background:#000;border:1px solid #333;color:#fff"><input id="addIcon" placeholder="Emoji 🏦" style="width:100%;padding:10px;margin-top:6px;border-radius:10px;background:#000;border:1px solid #333;color:#fff"><button class="btn-gold" style="width:100%;margin-top:10px" onclick="addBanco()">💾 SALVAR BANCO</button></div></div>
+<div id="tab-playstore" style="display:none"><div class="card"><h3 style="color:gold">📲 Play Store - Clique em INSTALAR</h3><div id="listaPlay"></div></div></div>
+<div id="tab-vip" style="display:none"><div class="card" style="text-align:center;border:2px solid gold"><h2 style="color:gold">👑 VIP R$3,00</h2><p style="color:#aaa">Libere todos os bancos + suporte</p><p id="pix" style="color:gold;font-weight:bold;background:#000;padding:8px;border-radius:8px;border:1px dashed gold;margin:10px 0">bancogratidao@gmail.com</p><button class="btn-gold" onclick="navigator.clipboard.writeText(document.getElementById('pix').innerText);alert('PIX copiado! 💾')">📋 COPIAR PIX</button><br><br><button class="btn-green" style="width:100%" onclick="convidar()">👥 CONVIDAR MEMBROS PRO VIP</button></div></div>
+</div>
+
+<script>
+let pin='',pinSalvo=localStorage.getItem('v17_pin'),criando=false,deferredPrompt=null;
+const APP_URL='https://bancogratidaooficial-ops.github.io/Central-de-bancos/';
+function upd(){for(let i=1;i<=4;i++)document.getElementById('d'+i).classList.toggle('filled',i<=pin.length)}
+function addPin(n){if(pin.length>=4)return;pin+=n;upd();if(pin.length===4)setTimeout(okPin,200)}
+function clearPin(){pin=pin.slice(0,-1);upd()}
+function okPin(){if(!pinSalvo&&!criando){pinSalvo=pin;criando=true;document.getElementById('pinMsg').innerText='Confirme o PIN';document.getElementById('btnCriar').style.display='block';pin='';upd();return}if(pin===pinSalvo||(!localStorage.getItem('v17_pin')&&criando)){localStorage.setItem('v17_pin',pinSalvo);document.getElementById('lockScreen').style.display='none';document.getElementById('app').style.display='block';render()}else{document.getElementById('pinMsg').innerText='❌ Erro!';pin='';upd()}}
+function criarPin(){if(pin!==pinSalvo)return alert('PIN diferente!');localStorage.setItem('v17_pin',pinSalvo);document.getElementById('lockScreen').style.display='none';document.getElementById('app').style.display='block';render()}
+function bloquear(){location.reload()}
+
+let bancos=JSON.parse(localStorage.getItem('v17_bancos2')||'null')||[
+{nome:'Itaú',site:'https://www.itau.com.br',play:'https://play.google.com/store/apps/details?id=com.itau',icon:'🏦',id:1},
+{nome:'Santander',site:'https://www.santander.com.br',play:'https://play.google.com/store/apps/details?id=br.com.santander.wallet',icon:'🔴',id:2},
+{nome:'Caixa',site:'https://www.caixa.gov.br',play:'https://play.google.com/store/apps/details?id=br.com.gabba.Caixa',icon:'🔵',id:3},
+{nome:'Bradesco',site:'https://www.bradesco.com.br',play:'https://play.google.com/store/apps/details?id=com.bradesco',icon:'🔴',id:4},
+{nome:'Banco do Brasil',site:'https://www.bb.com.br',play:'https://play.google.com/store/apps/details?id=br.com.bb.android',icon:'🟡',id:5},
+{nome:'Nubank',site:'https://nubank.com.br',play:'https://play.google.com/store/apps/details?id=com.nu.production',icon:'💜',id:6},
+{nome:'Inter',site:'https://www.bancointer.com.br',play:'https://play.google.com/store/apps/details?id=br.com.intermedium',icon:'🧡',id:7},
+{nome:'C6 Bank',site:'https://www.c6bank.com.br',play:'https://play.google.com/store/apps/details?id=com.c6bank.app',icon:'⚫',id:8}
+];
+function save(){localStorage.setItem('v17_bancos2',JSON.stringify(bancos))}
+function render(){
+ let b=document.getElementById('busca')?.value.toLowerCase()||'';
+ let lb=document.getElementById('listaBancos'),lp=document.getElementById('listaPlay');
+ let f=bancos.filter(x=>x.nome.toLowerCase().includes(b));
+ lb.innerHTML=f.map(x=>`<div class="bank-item"><div style="font-size:24px">${x.icon}</div><div style="flex:1"><b>${x.nome}</b><div style="margin-top:4px;display:flex;gap:6px;flex-wrap:wrap"><button class="btn2" onclick="window.open('${x.site}','_blank')">▶️ Abrir</button><button class="install-btn" onclick="abrirPlay('${x.play}')">📲 INSTALAR</button><button class="btn2" onclick="compartilharBanco('${x.nome}','${x.site}')">📤</button></div></div><button class="trash" onclick="del(${x.id})">🗑️</button></div>`).join('')||'<div class="card">Nenhum banco</div>';
+ lp.innerHTML=bancos.map(x=>`<div class="bank-item"><div style="font-size:24px">${x.icon}</div><div style="flex:1"><b>${x.nome}</b></div><button class="install-btn" onclick="abrirPlay('${x.play}')">📲 INSTALAR</button><button class="trash" style="margin-left:6px" onclick="del(${x.id})">🗑️</button></div>`).join('');
+}
+function abrirPlay(url){window.location.href=url}
+function addBanco(){let n=document.getElementById('addNome').value.trim(),s=document.getElementById('addSite').value.trim(),p=document.getElementById('addPlay').value.trim(),i=document.getElementById('addIcon').value.trim()||'🏦';if(!n||!s)return alert('Preencha nome e site');if(!s.startsWith('http'))s='https://'+s;if(!p)p='https://play.google.com/store/search?q='+encodeURIComponent(n);bancos.push({nome:n,site:s,play:p,icon:i,id:Date.now()});save();render();alert('Salvo!');openTab('bancos',document.getElementById('tabBtn-bancos'))}
+function del(id){if(!confirm('Excluir esse banco? 🗑️'))return;bancos=bancos.filter(x=>x.id!==id);save();render()}
+function openTab(t,el){document.querySelectorAll('[id^=tab-]').forEach(e=>e.style.display='none');document.getElementById('tab-'+t).style.display='block';document.querySelectorAll('.tab').forEach(e=>e.classList.remove('active'));el.classList.add('active')}
+
+// NOVOS BOTÕES QUE VOCÊ PEDIU
+function compartilhar(){if(navigator.share){navigator.share({title:'V17 Cofre de Bancos',text:'Olha meu cofre de bancos seguro com PIN!',url:APP_URL})}else{navigator.clipboard.writeText(APP_URL);alert('Link copiado! 📤\n'+APP_URL)}}
+function compartilharBanco(nome,site){let txt=`🏦 ${nome}: ${site} - Via V17 Cofre`;if(navigator.share){navigator.share({title:nome,text:txt,url:site})}else{navigator.clipboard.writeText(txt);alert('Copiado! 📤')}}
+function convidar(){let msg=`👑 Entra no meu V17 COFRE DE BANCOS! 🔐\n\n✅ Todos os bancos em um app só\n✅ Com PIN secreto\n✅ Instala direto da Play Store\n✅ VIP só R$3\n\n👉 ${APP_URL}\n\nMe chama que te explico!`;if(navigator.share){navigator.share({title:'Convite V17 Cofre',text:msg,url:APP_URL})}else{navigator.clipboard.writeText(msg);alert('Convite copiado! 👥 Cole no WhatsApp!')}}
+window.addEventListener('beforeinstallprompt',e=>{e.preventDefault();deferredPrompt=e;document.getElementById('btnInstalarApp').style.display='inline-block'});
+function instalarPWA(){if(deferredPrompt){deferredPrompt.prompt();deferredPrompt.userChoice.then(r=>{deferredPrompt=null;document.getElementById('btnInstalarApp').style.display='none'})}else{alert('No Chrome clique em ⋮ > Adicionar à tela inicial > Instalar 📲\n\nAí vira app de verdade!')}}
+if(pinSalvo){document.getElementById('pinMsg').innerText='Digite seu PIN'}else{document.getElementById('pinMsg').innerText='Crie um PIN de 4 dígitos'}
+render();
+</script>
+</body>
+</html>
